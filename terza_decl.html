@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Il Professore Pazzo del Latino</title>
+<style>
+  body {
+    background-color: black;
+    color: white;
+    font-family: "Courier New", monospace;
+    text-align: center;
+    padding: 20px;
+  }
+  .btn {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    cursor: pointer;
+    font-family: inherit;
+    margin: 10px;
+  }
+  .btn:hover { background-color: #555; }
+  #game { margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h1>Il Professore Pazzo del Latino</h1>
+<p id="story">
+Ti svegli in un’aula buia... un riso riecheggia tra i muri.<br>
+“Benvenuto nel mio laboratorio!” dice il Professore Pazzo del Latino.<br>
+“Per fuggire, dovrai collezionare tutte le desinenze della terza declinazione!”<br><br>
+Premi Inizia per cominciare.
+</p>
+
+<div id="game">
+  <button class="btn" onclick="startGame()">Inizia</button>
+</div>
+
+<audio id="music" loop>
+  <source src="https://files.catbox.moe/w4l4tf.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const quiz = [
+  { q: "Qual è la desinenza del genitivo singolare della terza declinazione?", options: ["-is", "-ae", "-us"], correct: 0 },
+  { q: "Qual è la desinenza del nominativo plurale?", options: ["-es", "-um", "-ibus"], correct: 0 },
+  { q: "Qual è la desinenza dell’ablativo plurale?", options: ["-ibus", "-is", "-um"], correct: 0 },
+  { q: "‘Civis’ (il cittadino) appartiene al gruppo…", options: ["parisillabo", "imparisillabo"], correct: 0 },
+  { q: "‘Rex’ (il re) appartiene al gruppo…", options: ["parisillabo", "imparisillabo"], correct: 1 },
+  { q: "Quale tra questi NON è della terza declinazione?", options: ["mare", "puella", "corpus"], correct: 1 },
+];
+
+const desinenze = ["-is", "-em", "-e", "-es", "-um", "-ibus"];
+let index = 0;
+let collected = [];
+
+function startGame() {
+  document.getElementById("music").play();
+  showQuestion();
+}
+
+function showQuestion() {
+  if (index < quiz.length) {
+    const q = quiz[index];
+    document.getElementById("game").innerHTML = `
+      <p>${q.q}</p>
+      ${q.options.map((opt, i) => `
+        <button class="btn" onclick="checkAnswer(${i})">${opt}</button>
+      `).join("")}
+    `;
+  } else {
+    bossBattle();
+  }
+}
+
+function checkAnswer(choice) {
+  const q = quiz[index];
+  if (choice === q.correct) {
+    const part = desinenze[index % desinenze.length];
+    collected.push(part);
+    document.getElementById("game").innerHTML = `
+      <p>Corretto! Hai collezionato <b>${part}</b></p>
+      <button class="btn" onclick="next()">Continua</button>
+    `;
+  } else {
+    document.getElementById("game").innerHTML = `
+      <p>Sbagliato! Il Professore ride di te...</p>
+      <button class="btn" onclick="showQuestion()">Riprova</button>
+    `;
+  }
+}
+
+function next() {
+  index++;
+  showQuestion();
+}
+
+function bossBattle() {
+  document.getElementById("game").innerHTML = `
+    <p>Hai collezionato tutte le desinenze: ${collected.join(", ")}<br>
+    Ora il Professore ti sfida per l’ultima volta!</p>
+    <p>Hai 20 secondi per dire se <b>nomen</b> è parisillabo o imparisillabo.</p>
+    <button class="btn" onclick="bossAnswer('parisillabo')">Parisillabo</button>
+    <button class="btn" onclick="bossAnswer('imparisillabo')">Imparisillabo</button>
+  `;
+  setTimeout(() => {
+    document.getElementById("game").innerHTML = `<p>Tempo scaduto! Il Professore ti ha intrappolato per sempre tra le declinazioni...</p>`;
+  }, 20000);
+}
+
+function bossAnswer(ans) {
+  if (ans === "parisillabo") {
+    document.getElementById("game").innerHTML = `
+      <p>Hai sconfitto il Professore! Le desinenze brillano e si uniscono.<br>
+      La porta del laboratorio si apre. Sei libero.</p>
+    `;
+  } else {
+    document.getElementById("game").innerHTML = `<p>Sbagliato! Il Professore ti rinchiude tra i casi e le eccezioni...</p>`;
+  }
+}
+</script>
+
+</body>
+</html>
